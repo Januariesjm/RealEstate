@@ -17,3 +17,33 @@ export const createUser = asyncHandler(async (req, res) => {
 
 
 });
+
+//function to book a visit to a residency
+export const bookVisit = asyncHandler(async(req, res)=>{
+    const {email, date} = req.body
+    const {id} = req.params
+
+    try {
+        const alreadyBooked = await prisma.user.findUnique({
+            where: {email},
+            select: {bookedVisits: True}
+        })
+        if (alreadyBooked.bookedVisits.some((visit)=> visit.id == id)) {
+            res.status(400).json({message: "This residency is already booked by you"})
+        }
+        else{
+            await prisma.user.update({
+                where: {emial: email},
+                data: {
+                    bookedVisits: {push: {id, date}}
+                }
+            });
+            res.send("your visit is booked successfully")
+        
+        }
+        
+    } catch (error) {
+       throw new Error (error.message) 
+    }
+
+})
