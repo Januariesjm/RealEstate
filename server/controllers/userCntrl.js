@@ -47,3 +47,17 @@ export const bookVisit = asyncHandler(async(req, res)=>{
     }
 
 })
+
+//function to get all bookings of a user
+export const getAllBookings = asyncHandler(async(req, res) =>{
+   const {email} = req.body
+   try {
+    const bookings = await prisma.findUnique ({
+        where: {email},
+        select: {bookedVisits: true}
+    })
+    res.status(200).send(bookings)
+   } catch (error) {
+    throw new Error(error.message);
+   }
+})
